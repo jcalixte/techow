@@ -16,7 +16,7 @@ export const actions: ActionTree<State, State> = {
         checklist.name.toLowerCase().includes('comment')
     )
     const howItems = hows.map((checklist) => checklist.checkItems).flat()
-    commit(SET_HOWS, hows)
-    commit(SET_HOW_ITEMS, howItems)
+    commit(SET_HOWS, { hows })
+    commit(SET_HOW_ITEMS, { howItems })
   }
 }

@@ -37,17 +37,31 @@
         <md-field v-if="listId">
           <label for="cardId">Ticket</label>
           <md-select v-model="cardId" name="cardId" id="cardId">
-            <md-option v-for="c in cards" :key="c.id" :value="c.id">
+            <md-option v-for="c in boardCards" :key="c.id" :value="c.id">
               {{ c.name }}
             </md-option>
           </md-select>
         </md-field>
       </div>
     </div>
-    <md-field class="field">
-      <label>[HOW]</label>
-      <md-input v-model="how" />
-    </md-field>
+    <div class="md-layout md-gutter">
+      <div class="md-layout-item">
+        <md-field class="field">
+          <label>[HOW]</label>
+          <md-input v-model="how" />
+        </md-field>
+      </div>
+      <div class="md-layout-item card-container">
+        <md-list v-if="cards.length">
+          <md-list-item v-for="card in cards" :key="card.entity.id">
+            <md-icon>code</md-icon>
+            <span class="md-list-item-text">
+              {{ card.entity.name }}
+            </span>
+          </md-list-item>
+        </md-list>
+      </div>
+    </div>
     <div v-if="card">
       <button class="mdc-button foo-button" @click="createHow">
         <div class="mdc-button__ripple"></div>
@@ -56,12 +70,6 @@
       <h3>{{ card.name }}</h3>
       <hr />
     </div>
-    <md-list v-if="hows.length">
-      <md-list-item v-for="how in hows" :key="how.id">
-        <md-icon>code</md-icon>
-        <span class="md-list-item-text">{{ how.name }}</span>
-      </md-list-item>
-    </md-list>
   </div>
 </template>
 
@@ -73,7 +81,7 @@ import { Board } from '../models/Board'
 import { List } from '../models/List'
 import { Card } from '../models/Card'
 import { Checklist } from '../models/Checklist'
-import { ChecklistItem } from '../models/ChecklistItem'
+import { CardComplexity } from '@/store/state'
 
 @Component
 export default class Home extends Vue {
@@ -81,13 +89,13 @@ export default class Home extends Vue {
   private boards: Board[] = []
   private listId: string | null = null
   private lists: List[] = []
+  private boardCards: Card[] = []
   private cardId: string | null = null
-  private cards: Card[] = []
   private checklists: Checklist[] = []
   private isAuthenticated = trelloService.isAuthenticated
   private how = ''
-  @Getter
-  private hows!: ChecklistItem[]
+  @Getter('cardsWithComplexity')
+  private cards!: CardComplexity[]
   @Action
   private initBoard!: (boardId: string) => Promise<void>
 
@@ -114,7 +122,7 @@ export default class Home extends Vue {
     if (!this.listId) {
       return
     }
-    this.cards = await trelloService.getCards(this.listId)
+    this.boardCards = await trelloService.getCards(this.listId)
   }
 
   private async getChecklists() {
@@ -132,7 +140,7 @@ export default class Home extends Vue {
   }
 
   private get card(): Card | null {
-    return this.cards.find((card) => card.id === this.cardId) || null
+    return this.boardCards.find((card) => card.id === this.cardId) || null
   }
 
   @Watch('boardId')
