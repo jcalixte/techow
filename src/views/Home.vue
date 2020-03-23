@@ -1,30 +1,63 @@
 <template>
   <div class="home">
-    <button v-if="!isAuthenticated" @click="authenticate">auth</button>
-    <select v-model="boardId">
-      <option v-for="board in boards" :key="board.id" :value="board.id">
-        {{ board.name }}
-      </option>
-    </select>
-    <select v-model="listId">
-      <option v-for="list in lists" :key="list.id" :value="list.id">
-        {{ list.name }}
-      </option>
-    </select>
-    <select v-model="card">
-      <option v-for="c in cards" :key="c.id" :value="c">
-        {{ c.name }}
-      </option>
-    </select>
+    <button
+      class="mdc-button foo-button"
+      v-if="!isAuthenticated"
+      @click="authenticate"
+    >
+      <div class="mdc-button__ripple"></div>
+      <span class="mdc-button__label">se connecter</span>
+    </button>
+    <div class="md-layout md-gutter">
+      <div class="md-layout-item">
+        <md-field>
+          <label for="boardId">Tableau</label>
+          <md-select v-model="boardId" name="boardId" id="boardId">
+            <md-option
+              v-for="board in boards"
+              :key="board.id"
+              :value="board.id"
+            >
+              {{ board.name }}
+            </md-option>
+          </md-select>
+        </md-field>
+      </div>
+      <div class="md-layout-item">
+        <md-field v-if="boardId">
+          <label for="listId">Liste</label>
+          <md-select v-model="listId" name="listId" id="listId">
+            <md-option v-for="list in lists" :key="list.id" :value="list.id">
+              {{ list.name }}
+            </md-option>
+          </md-select>
+        </md-field>
+      </div>
+      <div class="md-layout-item">
+        <md-field v-if="listId">
+          <label for="cardId">Ticket</label>
+          <md-select v-model="cardId" name="cardId" id="cardId">
+            <md-option v-for="c in cards" :key="c.id" :value="c.id">
+              {{ c.name }}
+            </md-option>
+          </md-select>
+        </md-field>
+      </div>
+    </div>
     <div v-if="card">
-      <button @click="createHow">Creer</button>
-      <pre>{{ card }}</pre>
+      <button class="mdc-button foo-button" @click="createHow">
+        <div class="mdc-button__ripple"></div>
+        <span class="mdc-button__label">Créer le comment technique</span>
+      </button>
+      <h3>{{ card.name }}</h3>
+      <hr />
     </div>
-    <div v-if="hows.length">
-      <p v-for="how in hows" :key="how.id">
-        {{ how.name }}
-      </p>
-    </div>
+    <md-list v-if="hows.length">
+      <md-list-item v-for="how in hows" :key="how.id">
+        <md-icon>code</md-icon>
+        <span class="md-list-item-text">{{ how.name }}</span>
+      </md-list-item>
+    </md-list>
   </div>
 </template>
 
@@ -42,7 +75,7 @@ export default class Home extends Vue {
   private boards: Board[] = []
   private listId: string | null = null
   private lists: List[] = []
-  private card: Card | null = null
+  private cardId: string | null = null
   private cards: Card[] = []
   private checklists: Checklist[] = []
   private isAuthenticated = trelloService.isAuthenticated
@@ -81,10 +114,14 @@ export default class Home extends Vue {
   }
 
   private async createHow() {
-    if (!this.card) {
+    if (!this.cardId) {
       return
     }
-    await trelloService.createHow(this.card.id)
+    await trelloService.createHow(this.cardId)
+  }
+
+  private get card(): Card | null {
+    return this.cards.find((card) => card.id === this.cardId) || null
   }
 
   private get hows() {
