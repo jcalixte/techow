@@ -52,6 +52,13 @@ class TrelloService {
     return await response.json()
   }
 
+  public async getBoardCards(boardId: string): Promise<Card[]> {
+    const response = await fetch(
+      `${this.baseurl}/boards/${boardId}/cards?key=${this.apiKey}&token=${this.apiToken}`
+    )
+    return await response.json()
+  }
+
   public async getLists(boardId: string): Promise<List[]> {
     const response = await fetch(
       `${this.baseurl}/boards/${boardId}/lists?key=${this.apiKey}&token=${this.apiToken}`
