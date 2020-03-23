@@ -7,6 +7,9 @@ Ce projet a pour but d'harmoniser les comments techniques d'un projet en permett
 - de proposer des modèles de comments techniques,
 - la recherche d'anciens comments et leurs comparaisons avec les comments en cours d'écriture afin de facilité les futures estimations,
 - d'avoir des retours développeurs et de récupérer la complexité réelle de tickets "ratés" ; ces retours seront ainsi automatiquement pris en compte dans la réalisation de nouveaux comments.
+- standard d'architecture qui peuvent être facilement modifiable
+- avoir des liens vers les standards
+- Un questionnaire ?
 
 Techow a plusieurs objectifs :
 
