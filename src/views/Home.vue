@@ -44,6 +44,10 @@
         </md-field>
       </div>
     </div>
+    <md-field class="field">
+      <label>[HOW]</label>
+      <md-input v-model="how" />
+    </md-field>
     <div v-if="card">
       <button class="mdc-button foo-button" @click="createHow">
         <div class="mdc-button__ripple"></div>
@@ -62,12 +66,14 @@
 </template>
 
 <script lang="ts">
+import { Action, Getter } from 'vuex-class'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { trelloService } from '../services/trello.service'
 import { Board } from '../models/Board'
 import { List } from '../models/List'
 import { Card } from '../models/Card'
 import { Checklist } from '../models/Checklist'
+import { ChecklistItem } from '../models/ChecklistItem'
 
 @Component
 export default class Home extends Vue {
@@ -79,6 +85,11 @@ export default class Home extends Vue {
   private cards: Card[] = []
   private checklists: Checklist[] = []
   private isAuthenticated = trelloService.isAuthenticated
+  private how = ''
+  @Getter
+  private hows!: ChecklistItem[]
+  @Action
+  private initBoard!: (boardId: string) => Promise<void>
 
   private mounted() {
     this.getBoards()
@@ -124,21 +135,13 @@ export default class Home extends Vue {
     return this.cards.find((card) => card.id === this.cardId) || null
   }
 
-  private get hows() {
-    return this.checklists
-      .filter(
-        (checklist) =>
-          checklist.name.toLowerCase().includes('how') ||
-          checklist.name.toLowerCase().includes('comment')
-      )
-      .map((checklist) => checklist.checkItems)
-      .flat()
-  }
-
   @Watch('boardId')
   private onBoardIdChange() {
     this.getLists()
     this.getChecklists()
+    if (this.boardId) {
+      this.initBoard(this.boardId)
+    }
   }
 
   @Watch('listId')
@@ -147,3 +150,13 @@ export default class Home extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.home {
+  padding: 15px;
+
+  .field {
+    max-width: 300px;
+  }
+}
+</style>
