@@ -8,7 +8,7 @@
       <div class="mdc-button__ripple"></div>
       <span class="mdc-button__label">se connecter</span>
     </button>
-    <div class="md-layout md-gutter">
+    <div>
       <div class="md-layout-item">
         <md-field>
           <label for="boardId">Tableau</label>
@@ -44,19 +44,22 @@
         </md-field>
       </div>
     </div>
-    <div class="md-layout md-gutter">
+    <div>
       <div class="md-layout-item">
         <md-field class="field">
           <label>[HOW]</label>
-          <md-input v-model="how" />
+          <md-input v-model="localeNewHow" />
         </md-field>
       </div>
       <div class="md-layout-item card-container">
-        <md-list v-if="cards.length">
-          <md-list-item v-for="card in cards" :key="card.entity.id">
+        <h3>Tickets similaires</h3>
+        <md-list v-if="similarCards.length">
+          <md-list-item v-for="card in similarCards" :key="card.entity.id">
             <md-icon>code</md-icon>
-            <span class="md-list-item-text">
-              {{ card.entity.name }}
+            <span class="md-list-item-text card-name">
+              <a :href="card.entity.shortUrl">
+                {{ card.entity.name }}
+              </a>
             </span>
           </md-list-item>
         </md-list>
@@ -76,11 +79,13 @@
 <script lang="ts">
 import { Action, Getter } from 'vuex-class'
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { trelloService } from '../services/trello.service'
-import { Board } from '../models/Board'
-import { List } from '../models/List'
-import { Card } from '../models/Card'
-import { Checklist } from '../models/Checklist'
+import { debounce } from 'lodash-es'
+
+import { trelloService } from '@/services/trello.service'
+import { Board } from '@/models/Board'
+import { List } from '@/models/List'
+import { Card } from '@/models/Card'
+import { Checklist } from '@/models/Checklist'
 import { CardComplexity } from '@/store/state'
 
 @Component
@@ -92,12 +97,19 @@ export default class Home extends Vue {
   private boardCards: Card[] = []
   private cardId: string | null = null
   private checklists: Checklist[] = []
+  private updateNewHow = debounce(
+    (home: Home, newHow: string) => home.setNewHow(newHow),
+    250
+  )
   private isAuthenticated = trelloService.isAuthenticated
-  private how = ''
-  @Getter('cardsWithComplexity')
-  private cards!: CardComplexity[]
+  @Getter
+  private newHow!: string
+  @Getter
+  private similarCards!: CardComplexity[]
   @Action
   private initBoard!: (boardId: string) => Promise<void>
+  @Action
+  private setNewHow!: (newHow: string) => Promise<void>
 
   private mounted() {
     this.getBoards()
@@ -143,6 +155,14 @@ export default class Home extends Vue {
     return this.boardCards.find((card) => card.id === this.cardId) || null
   }
 
+  private get localeNewHow() {
+    return this.newHow
+  }
+
+  private set localeNewHow(newHow: string) {
+    this.updateNewHow(this, newHow)
+  }
+
   @Watch('boardId')
   private onBoardIdChange() {
     this.getLists()
@@ -166,5 +186,10 @@ export default class Home extends Vue {
   .field {
     max-width: 300px;
   }
+}
+
+.card-name {
+  word-break: break-all;
+  text-overflow: clip;
 }
 </style>

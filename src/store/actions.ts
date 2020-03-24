@@ -1,7 +1,7 @@
 import { ActionTree } from 'vuex'
 import { State } from './state'
 import { trelloService } from '@/services/trello.service'
-import { SET_CARDS, SET_HOWS, SET_HOW_ITEMS } from './mutations'
+import { SET_CARDS, SET_HOWS, SET_HOW_ITEMS, SET_NEW_HOW } from './mutations'
 
 export const actions: ActionTree<State, State> = {
   initBoard: async ({ commit }, boartdId: string) => {
@@ -18,5 +18,8 @@ export const actions: ActionTree<State, State> = {
     const howItems = hows.map((checklist) => checklist.checkItems).flat()
     commit(SET_HOWS, { hows })
     commit(SET_HOW_ITEMS, { howItems })
+  },
+  setNewHow({ commit }, newHow: string) {
+    commit(SET_NEW_HOW, { newHow })
   }
 }

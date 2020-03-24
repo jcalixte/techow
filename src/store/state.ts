@@ -11,10 +11,12 @@ export interface State {
   cards: CardComplexity[]
   hows: Checklist[]
   howItems: ChecklistItem[]
+  newHow: string
 }
 
 export const state: State = {
   cards: [],
   hows: [],
-  howItems: []
+  howItems: [],
+  newHow: ''
 }
