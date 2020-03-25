@@ -51,18 +51,13 @@
           <md-input v-model="localeNewHow" />
         </md-field>
       </div>
-      <div class="md-layout-item card-container">
+      <div class="md-layout-item card-container" v-if="similarCards.length">
         <h3>Tickets similaires</h3>
-        <md-list v-if="similarCards.length">
-          <md-list-item v-for="card in similarCards" :key="card.entity.id">
-            <md-icon>code</md-icon>
-            <span class="md-list-item-text card-name">
-              <a :href="card.entity.shortUrl">
-                {{ card.entity.name }}
-              </a>
-            </span>
-          </md-list-item>
-        </md-list>
+        <TrelloCard
+          v-for="card in similarCards"
+          :key="card.entity.id"
+          :card="card.entity"
+        />
       </div>
     </div>
     <div v-if="card">
@@ -88,7 +83,11 @@ import { Card } from '@/models/Card'
 import { Checklist } from '@/models/Checklist'
 import { CardComplexity } from '@/store/state'
 
-@Component
+@Component({
+  components: {
+    TrelloCard: () => import('@/components/TrelloCard.vue')
+  }
+})
 export default class Home extends Vue {
   private boardId: string | null = null
   private boards: Board[] = []
@@ -103,9 +102,13 @@ export default class Home extends Vue {
   )
   private isAuthenticated = trelloService.isAuthenticated
   @Getter
+  private board!: Board | null
+  @Getter
   private newHow!: string
   @Getter
   private similarCards!: CardComplexity[]
+  @Getter
+  private hows!: Checklist[]
   @Action
   private initBoard!: (boardId: string) => Promise<void>
   @Action
@@ -113,6 +116,9 @@ export default class Home extends Vue {
 
   private mounted() {
     this.getBoards()
+    if (this.board) {
+      this.boardId = this.board.id
+    }
   }
 
   private authenticate() {
@@ -151,6 +157,10 @@ export default class Home extends Vue {
     await trelloService.createHow(this.cardId)
   }
 
+  private getHowByCardId(cardId: string) {
+    return this.hows.filter((how) => how.idCard === cardId)
+  }
+
   private get card(): Card | null {
     return this.boardCards.find((card) => card.id === this.cardId) || null
   }
@@ -163,7 +173,7 @@ export default class Home extends Vue {
     this.updateNewHow(this, newHow)
   }
 
-  @Watch('boardId')
+  @Watch('boardId', { immediate: true })
   private onBoardIdChange() {
     this.getLists()
     this.getChecklists()
@@ -184,12 +194,16 @@ export default class Home extends Vue {
   padding: 15px;
 
   .field {
-    max-width: 300px;
+    max-width: 800px;
   }
 }
 
 .card-name {
   word-break: break-all;
   text-overflow: clip;
+}
+
+.md-card {
+  margin: 10px 0;
 }
 </style>
