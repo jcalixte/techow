@@ -10,14 +10,14 @@ export const SET_BOARD = 'SET_BOARD'
 export const SET_CARDS = 'SET_CARDS'
 export const SET_HOWS = 'SET_HOWS'
 export const SET_HOW_ITEMS = 'SET_HOW_ITEMS'
-export const SET_NEW_HOW = 'SET_NEW_HOW'
+export const SET_NEW_HOW_ITEMS = 'SET_NEW_HOW_ITEMS'
 
 export const mutations: MutationTree<State> = {
   [SET_BOARD](state, { board }: { board: Board }) {
     state.board = board
   },
   [SET_CARDS](state, { cards }: { cards: Card[] }) {
-    state.cards = cards.map((card) => ({
+    state.cards = (cards || []).map((card) => ({
       entity: card,
       complexity: getComplexityFromCardName(card.name)
     }))
@@ -28,7 +28,7 @@ export const mutations: MutationTree<State> = {
   [SET_HOW_ITEMS](state, { howItems }: { howItems: ChecklistItem[] }) {
     state.howItems = howItems
   },
-  [SET_NEW_HOW](state, { newHow }: { newHow: string }) {
-    state.newHow = newHow
+  [SET_NEW_HOW_ITEMS](state, { newHowItems }: { newHowItems: string[] }) {
+    state.newHowItems = newHowItems
   }
 }

@@ -10,10 +10,11 @@ import { actions } from './actions'
 Vue.use(Vuex)
 
 const vuexLocal = new VuexPersistence<State>({
+  key: 'techow',
   storage: window.localStorage,
   reducer: (state) => ({
     board: state.board,
-    newHow: state.newHow
+    newHowItems: state.newHowItems
   })
 })
 

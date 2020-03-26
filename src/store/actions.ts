@@ -5,7 +5,7 @@ import {
   SET_CARDS,
   SET_HOWS,
   SET_HOW_ITEMS,
-  SET_NEW_HOW,
+  SET_NEW_HOW_ITEMS,
   SET_BOARD
 } from './mutations'
 
@@ -30,6 +30,21 @@ export const actions: ActionTree<State, State> = {
     commit(SET_HOW_ITEMS, { howItems })
   },
   setNewHow({ commit }, newHow: string) {
-    commit(SET_NEW_HOW, { newHow })
+    commit(SET_NEW_HOW_ITEMS, { newHow })
+  },
+  addNewHowItem({ state, commit }) {
+    commit(SET_NEW_HOW_ITEMS, { newHowItems: [...state.newHowItems, ''] })
+  },
+  removeNewHowItem({ state, commit }, index: number) {
+    const newHowItems = state.newHowItems.filter((_, i) => i !== index)
+    commit(SET_NEW_HOW_ITEMS, { newHowItems: [...newHowItems] })
+  },
+  setNewHowItem(
+    { state, commit },
+    { newHowItem, index }: { newHowItem: string; index: number }
+  ) {
+    const newHowItems = [...state.newHowItems]
+    newHowItems[index] = newHowItem
+    commit(SET_NEW_HOW_ITEMS, { newHowItems: [...newHowItems] })
   }
 }

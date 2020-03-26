@@ -46,18 +46,21 @@
     </div>
     <div>
       <div class="md-layout-item">
-        <md-field class="field">
-          <label>[HOW]</label>
-          <md-input v-model="localeNewHow" />
-        </md-field>
+        <h2>[HOW]</h2>
+        <HowItem v-for="(item, i) in newHowItems" :key="i" :index="i" />
+        <md-button class="md-icon-button md-raised" @click="addNewHowItem">
+          <md-icon>add</md-icon>
+        </md-button>
       </div>
-      <div class="md-layout-item card-container" v-if="similarCards.length">
+      <div class="md-layout-item" v-if="similarCards.length">
         <h3>Tickets similaires</h3>
-        <TrelloCard
-          v-for="card in similarCards"
-          :key="card.entity.id"
-          :card="card.entity"
-        />
+        <div class="card-container">
+          <TrelloCard
+            v-for="card in similarCards"
+            :key="card.id"
+            :card="card"
+          />
+        </div>
       </div>
     </div>
     <div v-if="card">
@@ -81,11 +84,11 @@ import { Board } from '@/models/Board'
 import { List } from '@/models/List'
 import { Card } from '@/models/Card'
 import { Checklist } from '@/models/Checklist'
-import { CardComplexity } from '@/store/state'
 
 @Component({
   components: {
-    TrelloCard: () => import('@/components/TrelloCard.vue')
+    TrelloCard: () => import('@/components/TrelloCard.vue'),
+    HowItem: () => import('@/components/HowItem.vue')
   }
 })
 export default class Home extends Vue {
@@ -104,13 +107,15 @@ export default class Home extends Vue {
   @Getter
   private board!: Board | null
   @Getter
-  private newHow!: string
+  private newHowItems!: string[]
   @Getter
-  private similarCards!: CardComplexity[]
+  private similarCards!: Card[]
   @Getter
   private hows!: Checklist[]
   @Action
   private initBoard!: (boardId: string) => Promise<void>
+  @Action
+  private addNewHowItem!: () => void
   @Action
   private setNewHow!: (newHow: string) => Promise<void>
 
@@ -165,14 +170,6 @@ export default class Home extends Vue {
     return this.boardCards.find((card) => card.id === this.cardId) || null
   }
 
-  private get localeNewHow() {
-    return this.newHow
-  }
-
-  private set localeNewHow(newHow: string) {
-    this.updateNewHow(this, newHow)
-  }
-
   @Watch('boardId', { immediate: true })
   private onBoardIdChange() {
     this.getLists()
@@ -203,7 +200,9 @@ export default class Home extends Vue {
   text-overflow: clip;
 }
 
-.md-card {
-  margin: 10px 0;
+.card-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 5px;
 }
 </style>
