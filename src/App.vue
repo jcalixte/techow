@@ -5,6 +5,11 @@
       <router-link to="/about">About</router-link>
     </div>
     <router-view />
+    <notifications
+      group="store"
+      position="bottom right"
+      :ignore-duplicates="true"
+    />
   </div>
 </template>
 

@@ -3,6 +3,7 @@ import { CardScore } from '@/models/CardScore'
 import { Checklist } from '@/models/Checklist'
 import { ChecklistItem } from '@/models/ChecklistItem'
 import { getComplexityFromCardName } from '@/utils/card-utils'
+import Vue from 'vue'
 import { MutationTree } from 'vuex'
 import { State } from './state'
 
@@ -29,6 +30,13 @@ export const mutations: MutationTree<State> = {
     state.newHowItems = newHowItems
   },
   [SET_SIMILAR_CARDS](state, { similarCards }: { similarCards: CardScore[] }) {
+    if (similarCards.length) {
+      Vue.notify({
+        group: 'store',
+        title: 'Tickets similaires retrouvés',
+        type: 'success'
+      })
+    }
     state.similarCards = similarCards
   }
 }

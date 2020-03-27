@@ -29,7 +29,6 @@ export default class HowItem extends Vue {
   private removeNewHowItem!: (index: number) => void
 
   private updateNewHow = debounce((home: HowItem, newHowItem: string) => {
-    console.log('new how item debounced')
     home.setNewHowItem({ newHowItem, index: this.index })
   }, 250)
 
@@ -37,7 +36,6 @@ export default class HowItem extends Vue {
     return this.newHowItems[this.index]
   }
   private set newHowItem(item: string) {
-    console.log('new how item')
     this.updateNewHow(this, item)
   }
 }

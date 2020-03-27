@@ -41,3 +41,11 @@ export default class TrelloCard extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.trello-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+</style>
