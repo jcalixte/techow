@@ -1,14 +1,16 @@
-import { MutationTree } from 'vuex'
-import { getComplexityFromCardName } from '@/utils/card-utils'
 import { Card } from '@/models/Card'
+import { CardScore } from '@/models/CardScore'
 import { Checklist } from '@/models/Checklist'
 import { ChecklistItem } from '@/models/ChecklistItem'
+import { getComplexityFromCardName } from '@/utils/card-utils'
+import { MutationTree } from 'vuex'
 import { State } from './state'
 
 export const SET_CARDS = 'SET_CARDS'
 export const SET_HOWS = 'SET_HOWS'
 export const SET_HOW_ITEMS = 'SET_HOW_ITEMS'
 export const SET_NEW_HOW_ITEMS = 'SET_NEW_HOW_ITEMS'
+export const SET_SIMILAR_CARDS = 'SET_SIMILAR_CARDS'
 
 export const mutations: MutationTree<State> = {
   [SET_CARDS](state, { cards }: { cards: Card[] }) {
@@ -25,5 +27,8 @@ export const mutations: MutationTree<State> = {
   },
   [SET_NEW_HOW_ITEMS](state, { newHowItems }: { newHowItems: string[] }) {
     state.newHowItems = newHowItems
+  },
+  [SET_SIMILAR_CARDS](state, { similarCards }: { similarCards: CardScore[] }) {
+    state.similarCards = similarCards
   }
 }

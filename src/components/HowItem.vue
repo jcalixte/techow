@@ -28,16 +28,16 @@ export default class HowItem extends Vue {
   @Action
   private removeNewHowItem!: (index: number) => void
 
-  private updateNewHow = debounce(
-    (home: HowItem, newHowItem: string) =>
-      home.setNewHowItem({ newHowItem, index: this.index }),
-    250
-  )
+  private updateNewHow = debounce((home: HowItem, newHowItem: string) => {
+    console.log('new how item debounced')
+    home.setNewHowItem({ newHowItem, index: this.index })
+  }, 250)
 
   private get newHowItem() {
     return this.newHowItems[this.index]
   }
   private set newHowItem(item: string) {
+    console.log('new how item')
     this.updateNewHow(this, item)
   }
 }

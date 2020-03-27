@@ -1,12 +1,14 @@
 import { ActionTree } from 'vuex'
-import { State } from './state'
+import { State, CardComplexity } from './state'
 import { trelloService } from '@/services/trello.service'
 import {
   SET_CARDS,
   SET_HOWS,
   SET_HOW_ITEMS,
-  SET_NEW_HOW_ITEMS
+  SET_NEW_HOW_ITEMS,
+  SET_SIMILAR_CARDS
 } from './mutations'
+import { getBestSimilarCards, getSimilarCards } from '@/utils/card-utils'
 
 export const actions: ActionTree<State, State> = {
   initBoard: async ({ commit }, boardId: string) => {
@@ -36,11 +38,40 @@ export const actions: ActionTree<State, State> = {
     commit(SET_NEW_HOW_ITEMS, { newHowItems: [...newHowItems] })
   },
   setNewHowItem(
-    { state, commit },
+    { state, commit, getters },
     { newHowItem, index }: { newHowItem: string; index: number }
   ) {
     const newHowItems = [...state.newHowItems]
     newHowItems[index] = newHowItem
     commit(SET_NEW_HOW_ITEMS, { newHowItems })
+
+    const newHowItemContents = newHowItems.filter((item) => !!item)
+    const cardsWithComplexity: CardComplexity[] = getters.cardsWithComplexity
+    if (
+      !newHowItemContents.length ||
+      !state.howItems.length ||
+      !cardsWithComplexity.length
+    ) {
+      commit(SET_SIMILAR_CARDS, { similarCards: [] })
+      return
+    }
+
+    const cards = cardsWithComplexity
+      .filter((c) => !!c.entity)
+      .map((c) => c.entity)
+
+    const props = {
+      similarCards: getBestSimilarCards(
+        ...newHowItemContents.map((newHowItem) =>
+          getSimilarCards({
+            newHowItem,
+            hows: state.hows,
+            howItems: state.howItems,
+            cards
+          })
+        )
+      ).slice(0, 10)
+    }
+    commit(SET_SIMILAR_CARDS, props)
   }
 }
