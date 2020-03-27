@@ -3,6 +3,7 @@ import stringSimilarity from 'string-similarity'
 import { ChecklistItem } from '@/models/ChecklistItem'
 import { Checklist } from '@/models/Checklist'
 import { Card } from '@/models/Card'
+import { CardScore } from '@/models/CardScore'
 
 export const getComplexityFromCardName = (cardName: string): number | null => {
   const regExp = /\(([^)]+)\)/
@@ -44,25 +45,21 @@ const getSimilarHows = (
   if (!newHow) {
     return {}
   }
-  const SIMILARITY_THRESHOLD = 0.2
 
   const howItemNames = howItems.map((howItem) => howItem.name)
 
   const similarities = stringSimilarity.findBestMatch(newHow, howItemNames)
-  const similiarNameMatches: OrderedMatches<string> = similarities.ratings
-    .filter((rating) => rating.rating > SIMILARITY_THRESHOLD)
-    .reduce(
-      (obj: OrderedMatches<string>, similarity) => ({
-        ...obj,
-        [similarity.target]: {
-          entity: similarity.target,
-          score: obj[similarity.target]
-            ? obj[similarity.target].score + similarity.rating
-            : similarity.rating
-        }
-      }),
-      {}
-    )
+  const similiarNameMatches: OrderedMatches<string> = similarities.ratings.reduce(
+    (obj: OrderedMatches<string>, similarity) => ({
+      ...obj,
+      [similarity.target]: {
+        entity: similarity.target,
+        score: Math.max(obj[similarity.target]?.score ?? 0, similarity.rating)
+      }
+    }),
+    {}
+  )
+
   const targetMatches = Object.keys(similiarNameMatches)
 
   if (!targetMatches.length) {
@@ -78,9 +75,10 @@ const getSimilarHows = (
           entity:
             obj[item.idChecklist]?.entity ??
             getHowByHowItemName(hows, item.name),
-          score:
-            (obj[item.idChecklist]?.score ?? 0) +
+          score: Math.max(
+            obj[item.idChecklist]?.score ?? 0,
             similiarNameMatches[item.name].score
+          )
         }
       }),
       {}
@@ -116,7 +114,7 @@ export const getSimilarCards = ({
         entity:
           obj[item.entity.idCard]?.entity ||
           getCardByCardId(cards, item.entity.idCard),
-        score: (obj[item.entity.idCard]?.score ?? 0) + item.score
+        score: Math.max(obj[item.entity.idCard]?.score ?? 0, item.score)
       }
     }),
     {}
@@ -130,16 +128,17 @@ const getCardScore = (
   ...similarCardCollections: OrderedMatches<Card>[]
 ): number => {
   let score = 0
+
   similarCardCollections.forEach((collection) => {
-    score += collection[cardId]?.score ?? 0
+    score = Math.max(collection[cardId]?.score ?? 0, score)
   })
 
-  return score
+  return Number(score.toFixed(2))
 }
 
 export const getBestSimilarCards = (
   ...similarCardCollections: OrderedMatches<Card>[]
-): Card[] => {
+): CardScore[] => {
   let mergedCollections: OrderedMatches<Card> = {}
 
   similarCardCollections.forEach((similarCard) => {
@@ -154,9 +153,11 @@ export const getBestSimilarCards = (
   }
 
   return Object.values(mergedCollections)
-    .map((card) => card.entity)
-    .filter((card) => !!card)
+    .filter((card) => !!card.entity)
     .sort((a, b) =>
-      mergedCollections[a.id].score > mergedCollections[b.id].score ? -1 : 1
+      mergedCollections[a.entity.id].score >
+      mergedCollections[b.entity.id].score
+        ? -1
+        : 1
     )
 }

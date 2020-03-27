@@ -11,6 +11,13 @@ const routes: RouteConfig[] = [
     component: Home
   },
   {
+    path: '/board/:boardId',
+    name: 'BoardView',
+    props: true,
+    component: () =>
+      import(/* webpackChunkName: "board-view" */ '../views/BoardView.vue')
+  },
+  {
     path: '/about',
     name: 'About',
     // route level code-splitting

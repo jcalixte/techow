@@ -5,24 +5,20 @@ import {
   SET_CARDS,
   SET_HOWS,
   SET_HOW_ITEMS,
-  SET_NEW_HOW_ITEMS,
-  SET_BOARD
+  SET_NEW_HOW_ITEMS
 } from './mutations'
 
 export const actions: ActionTree<State, State> = {
   initBoard: async ({ commit }, boardId: string) => {
-    const [board, cards, checklists] = await Promise.all([
-      trelloService.getBoard(boardId),
+    const [cards, checklists] = await Promise.all([
       trelloService.getBoardCards(boardId),
       trelloService.getBoardChecklists(boardId)
     ])
-    commit(SET_BOARD, { board })
     commit(SET_CARDS, { cards })
-    const hows = checklists.filter(
-      (checklist) =>
-        checklist.name.toLowerCase().includes('how') ||
-        checklist.name.toLowerCase().includes('comment')
-    )
+    const hows = checklists.filter((checklist) => {
+      const checklistName = checklist.name.toLowerCase()
+      return checklistName.includes('how') || checklistName.includes('comment')
+    })
     hows.forEach((how) => how.checkItems.sort((a, b) => a.pos - b.pos))
 
     const howItems = hows.map((checklist) => checklist.checkItems).flat()
@@ -45,6 +41,6 @@ export const actions: ActionTree<State, State> = {
   ) {
     const newHowItems = [...state.newHowItems]
     newHowItems[index] = newHowItem
-    commit(SET_NEW_HOW_ITEMS, { newHowItems: [...newHowItems] })
+    commit(SET_NEW_HOW_ITEMS, { newHowItems })
   }
 }

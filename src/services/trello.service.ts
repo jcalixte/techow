@@ -52,7 +52,7 @@ class TrelloService {
     return await response.json()
   }
 
-  public async getBoard(boardId: string): Promise<Card> {
+  public async getBoard(boardId: string): Promise<Board> {
     const response = await fetch(
       `${this.baseurl}/boards/${boardId}?key=${this.apiKey}&token=${this.apiToken}`
     )
@@ -87,28 +87,59 @@ class TrelloService {
     return await response.json()
   }
 
-  public async getChecklist(cardId: string): Promise<Checklist[]> {
+  public async getChecklists(cardId: string): Promise<Checklist[]> {
     const response = await fetch(
       `${this.baseurl}/cards/${cardId}/checklists?key=${this.apiKey}&token=${this.apiToken}`
     )
     return await response.json()
   }
 
-  public async createHow(cardId: string): Promise<Checklist> {
+  public async createHow(
+    cardId: string,
+    howItems: string[]
+  ): Promise<Checklist> {
     const qs = {
       idCard: cardId,
-      key: this.apiKey,
-      token: this.apiToken
+      name: '[COMMENT]',
+      pos: 'bottom'
     }
     const response = await fetch(`${this.baseurl}/checklists?${this.qs(qs)}`, {
       method: 'POST'
     })
-    return await response.json()
+    const how: Checklist = await response.json()
+
+    for (const item of howItems) {
+      const itemQs = {
+        name: item,
+        pos: 'bottom'
+      }
+      await fetch(
+        `${this.baseurl}/checklists/${how.id}/checkItems?${this.qs(itemQs)}`,
+        {
+          method: 'POST'
+        }
+      )
+    }
+
+    const final = await fetch(
+      `${this.baseurl}/checklists/${how.id}?${this.qs(qs)}`
+    )
+    return await final.json()
   }
 
-  private qs(qs: { [key: string]: string | null | number }): string {
-    return Object.keys(qs)
-      .map((key) => `${key}=${qs[key]}`)
+  private qs(qs: { [key: string]: string | null | number } = {}): string {
+    const authorizedQs: typeof qs = {
+      ...qs,
+      key: this.apiKey,
+      token: this.apiToken
+    }
+    return Object.keys(authorizedQs)
+      .map(
+        (key) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(
+            authorizedQs[key]?.toString() ?? ''
+          )}`
+      )
       .join('&')
   }
 }

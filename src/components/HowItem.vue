@@ -1,14 +1,15 @@
 <template>
-  <md-field class="field">
-    <md-input v-model="newHowItem" />
-
+  <div class="how-item">
+    <md-field class="field">
+      <md-input v-model="newHowItem" />
+    </md-field>
     <md-button
       class="md-icon-button md-raised"
       @click="removeNewHowItem(index)"
     >
       <md-icon>remove</md-icon>
     </md-button>
-  </md-field>
+  </div>
 </template>
 
 <script lang="ts">
@@ -44,5 +45,8 @@ export default class HowItem extends Vue {
 
 <style scoped lang="scss">
 .how-item {
+  display: flex;
+  max-width: 600px;
+  margin: auto;
 }
 </style>

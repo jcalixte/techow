@@ -8,201 +8,25 @@
       <div class="mdc-button__ripple"></div>
       <span class="mdc-button__label">se connecter</span>
     </button>
-    <div>
-      <div class="md-layout-item">
-        <md-field>
-          <label for="boardId">Tableau</label>
-          <md-select v-model="boardId" name="boardId" id="boardId">
-            <md-option
-              v-for="board in boards"
-              :key="board.id"
-              :value="board.id"
-            >
-              {{ board.name }}
-            </md-option>
-          </md-select>
-        </md-field>
-      </div>
-      <div class="md-layout-item">
-        <md-field v-if="boardId">
-          <label for="listId">Liste</label>
-          <md-select v-model="listId" name="listId" id="listId">
-            <md-option v-for="list in lists" :key="list.id" :value="list.id">
-              {{ list.name }}
-            </md-option>
-          </md-select>
-        </md-field>
-      </div>
-      <div class="md-layout-item">
-        <md-field v-if="listId">
-          <label for="cardId">Ticket</label>
-          <md-select v-model="cardId" name="cardId" id="cardId">
-            <md-option v-for="c in boardCards" :key="c.id" :value="c.id">
-              {{ c.name }}
-            </md-option>
-          </md-select>
-        </md-field>
-      </div>
-    </div>
-    <div>
-      <div class="md-layout-item">
-        <h2>[HOW]</h2>
-        <HowItem v-for="(item, i) in newHowItems" :key="i" :index="i" />
-        <md-button class="md-icon-button md-raised" @click="addNewHowItem">
-          <md-icon>add</md-icon>
-        </md-button>
-      </div>
-      <div class="md-layout-item" v-if="similarCards.length">
-        <h3>Tickets similaires</h3>
-        <div class="card-container">
-          <TrelloCard
-            v-for="card in similarCards"
-            :key="card.id"
-            :card="card"
-          />
-        </div>
-      </div>
-    </div>
-    <div v-if="card">
-      <button class="mdc-button foo-button" @click="createHow">
-        <div class="mdc-button__ripple"></div>
-        <span class="mdc-button__label">Créer le comment technique</span>
-      </button>
-      <h3>{{ card.name }}</h3>
-      <hr />
-    </div>
+    <SelectBoard v-else />
   </div>
 </template>
 
 <script lang="ts">
-import { Action, Getter } from 'vuex-class'
-import { Component, Vue, Watch } from 'vue-property-decorator'
-import { debounce } from 'lodash-es'
+import { Component, Vue } from 'vue-property-decorator'
 
 import { trelloService } from '@/services/trello.service'
-import { Board } from '@/models/Board'
-import { List } from '@/models/List'
-import { Card } from '@/models/Card'
-import { Checklist } from '@/models/Checklist'
 
 @Component({
   components: {
-    TrelloCard: () => import('@/components/TrelloCard.vue'),
-    HowItem: () => import('@/components/HowItem.vue')
+    SelectBoard: () => import('@/components/SelectBoard.vue')
   }
 })
 export default class Home extends Vue {
-  private boardId: string | null = null
-  private boards: Board[] = []
-  private listId: string | null = null
-  private lists: List[] = []
-  private boardCards: Card[] = []
-  private cardId: string | null = null
-  private checklists: Checklist[] = []
-  private updateNewHow = debounce(
-    (home: Home, newHow: string) => home.setNewHow(newHow),
-    250
-  )
   private isAuthenticated = trelloService.isAuthenticated
-  @Getter
-  private board!: Board | null
-  @Getter
-  private newHowItems!: string[]
-  @Getter
-  private similarCards!: Card[]
-  @Getter
-  private hows!: Checklist[]
-  @Action
-  private initBoard!: (boardId: string) => Promise<void>
-  @Action
-  private addNewHowItem!: () => void
-  @Action
-  private setNewHow!: (newHow: string) => Promise<void>
-
-  private mounted() {
-    this.getBoards()
-    if (this.board) {
-      this.boardId = this.board.id
-    }
-  }
 
   private authenticate() {
     trelloService.askPermission()
   }
-
-  private async getBoards() {
-    this.boards = await trelloService.getBoards()
-  }
-
-  private async getLists() {
-    if (!this.boardId) {
-      return
-    }
-    this.lists = await trelloService.getLists(this.boardId)
-  }
-
-  private async getCards() {
-    if (!this.listId) {
-      return
-    }
-    this.boardCards = await trelloService.getCards(this.listId)
-  }
-
-  private async getChecklists() {
-    if (!this.boardId) {
-      return
-    }
-    this.checklists = await trelloService.getBoardChecklists(this.boardId)
-  }
-
-  private async createHow() {
-    if (!this.cardId) {
-      return
-    }
-    await trelloService.createHow(this.cardId)
-  }
-
-  private getHowByCardId(cardId: string) {
-    return this.hows.filter((how) => how.idCard === cardId)
-  }
-
-  private get card(): Card | null {
-    return this.boardCards.find((card) => card.id === this.cardId) || null
-  }
-
-  @Watch('boardId', { immediate: true })
-  private onBoardIdChange() {
-    this.getLists()
-    this.getChecklists()
-    if (this.boardId) {
-      this.initBoard(this.boardId)
-    }
-  }
-
-  @Watch('listId')
-  private onListIdChange() {
-    this.getCards()
-  }
 }
 </script>
-
-<style lang="scss" scoped>
-.home {
-  padding: 15px;
-
-  .field {
-    max-width: 800px;
-  }
-}
-
-.card-name {
-  word-break: break-all;
-  text-overflow: clip;
-}
-
-.card-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 5px;
-}
-</style>
