@@ -36,7 +36,7 @@ export const mutations: MutationTree<State> = {
   [SET_SIMILAR_CARDS](state, { similarCards }: { similarCards: CardScore[] }) {
     if (similarCards.length) {
       Vue.notify({
-        group: 'store',
+        group: 'notification',
         title: 'Tickets similaires retrouvés',
         type: 'success'
       })

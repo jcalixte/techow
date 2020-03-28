@@ -6,7 +6,7 @@
     </div>
     <router-view />
     <notifications
-      group="store"
+      group="notification"
       position="bottom right"
       :ignore-duplicates="true"
     />
