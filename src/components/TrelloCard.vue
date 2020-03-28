@@ -2,13 +2,14 @@
   <md-card class="trello-card">
     <md-card-header>
       <div class="md-title">{{ card.entity.name }}</div>
-      <div class="md-subhead">
+      <div class="md-subhead" v-if="card.score">
         Score de pertinence : {{ card.score.toLocaleString() }}
       </div>
     </md-card-header>
 
     <md-card-content>
       <div v-for="checklist in cardChecklists" :key="checklist.id">
+        <h3>{{ checklist.name }}</h3>
         <ol>
           <li v-for="item in checklist.checkItems" :key="item.id">
             {{ item.name }}
@@ -18,7 +19,7 @@
     </md-card-content>
 
     <md-card-actions>
-      <md-button :href="card.entity.shortUrl">Trello</md-button>
+      <md-button :href="card.entity.shortUrl">trello</md-button>
     </md-card-actions>
   </md-card>
 </template>
@@ -33,11 +34,17 @@ import { CardScore } from '@/models/CardScore'
 export default class TrelloCard extends Vue {
   @Prop()
   private card!: CardScore
+  @Prop({ type: Boolean, default: false })
+  private allChecklists!: boolean
+  @Getter
+  private checklists!: Checklist[]
   @Getter
   private hows!: Checklist[]
 
   private get cardChecklists() {
-    return this.hows.filter((how) => how.idCard === this.card.entity.id)
+    return (this.allChecklists ? this.checklists : this.hows).filter(
+      (how) => how.idCard === this.card.entity.id
+    )
   }
 }
 </script>

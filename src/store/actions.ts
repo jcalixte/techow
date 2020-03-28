@@ -6,7 +6,8 @@ import {
   SET_HOWS,
   SET_HOW_ITEMS,
   SET_NEW_HOW_ITEMS,
-  SET_SIMILAR_CARDS
+  SET_SIMILAR_CARDS,
+  SET_CHECKLISTS
 } from './mutations'
 import { getBestSimilarCards, getSimilarCards } from '@/workers/card.worker'
 import { ChecklistItem } from '@/models/ChecklistItem'
@@ -68,6 +69,7 @@ export const actions: ActionTree<State, State> = {
     hows.forEach((how) => how.checkItems.sort((a, b) => a.pos - b.pos))
 
     const howItems = hows.map((checklist) => checklist.checkItems).flat()
+    commit(SET_CHECKLISTS, { checklists })
     commit(SET_HOWS, { hows })
     commit(SET_HOW_ITEMS, { howItems })
     await computeSimilarCards(

@@ -30,7 +30,7 @@ export default class HowItem extends Vue {
 
   private updateNewHow = debounce((home: HowItem, newHowItem: string) => {
     home.setNewHowItem({ newHowItem, index: this.index })
-  }, 250)
+  }, 200)
 
   private get newHowItem() {
     return this.newHowItems[this.index]

@@ -10,6 +10,7 @@ export interface CardComplexity {
 
 export interface State {
   cards: CardComplexity[]
+  checklists: Checklist[]
   hows: Checklist[]
   howItems: ChecklistItem[]
   newHowItems: string[]
@@ -18,6 +19,7 @@ export interface State {
 
 export const state: State = {
   cards: [],
+  checklists: [],
   hows: [],
   howItems: [],
   newHowItems: [],

@@ -1,6 +1,10 @@
 <template>
   <div class="select-board">
-    <md-card class="md-primary" v-for="board in boards" :key="board.id">
+    <md-card
+      class="md-primary board-card"
+      v-for="board in boards"
+      :key="board.id"
+    >
       <md-card-header>
         <md-card-header-text>
           <div class="md-title">{{ board.name }}</div>
@@ -8,8 +12,11 @@
       </md-card-header>
 
       <md-card-actions>
+        <md-button :href="`/board/${board.id}/quality`">
+          qualité
+        </md-button>
         <md-button :href="`/board/${board.id}`">
-          Sélectionner
+          comment
         </md-button>
       </md-card-actions>
     </md-card>
@@ -40,5 +47,11 @@ export default class SelectBoard extends Vue {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-gap: 15px;
+
+  .board-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 }
 </style>
