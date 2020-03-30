@@ -16,12 +16,12 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
+import Chart from 'chart.js'
 import { trelloService } from '@/services/trello.service'
 import { qualityService } from '@/services/quality.service'
 import { Board } from '@/models/Board'
 import { Card } from '@/models/Card'
-import Chart from 'chart.js'
-import { Perf } from '../models/Perf'
+import { Perf } from '@/models/Perf'
 
 @Component({
   components: {
@@ -37,7 +37,7 @@ export default class BoardQuality extends Vue {
   cards: Card[] = []
   perfs: Perf[] = []
   baseUrl = qualityService.baseDbUrl
-  chart: Chart | null = null
+  chart: typeof Chart | null = null
 
   async mounted() {
     this.board = await trelloService.getBoard(this.boardId)
