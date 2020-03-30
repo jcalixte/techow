@@ -12,12 +12,18 @@
       </md-card-header>
 
       <md-card-actions>
-        <md-button :href="`/board/${board.id}/quality`">
+        <router-link
+          tag="md-button"
+          :to="{ name: 'BoardQuality', params: { boardId: board.id } }"
+        >
           qualité
-        </md-button>
-        <md-button :href="`/board/${board.id}`">
+        </router-link>
+        <router-link
+          tag="md-button"
+          :to="{ name: 'BoardView', params: { boardId: board.id } }"
+        >
           comment
-        </md-button>
+        </router-link>
       </md-card-actions>
     </md-card>
   </div>

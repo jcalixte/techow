@@ -1,6 +1,15 @@
 <template>
   <div class="board">
-    <h1 v-if="board">{{ board.name }}</h1>
+    <h1 v-if="board">
+      {{ board.name }}
+
+      <router-link
+        tag="md-button"
+        :to="{ name: 'BoardQuality', params: { boardId: board.id } }"
+      >
+        qualité
+      </router-link>
+    </h1>
     <div>
       <div class="md-layout-item">
         <md-field v-if="boardId">

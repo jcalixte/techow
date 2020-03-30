@@ -1,8 +1,16 @@
 <template>
   <div class="board-quality" v-if="board">
-    <h1>{{ board.name }}</h1>
+    <h1>
+      {{ board.name }}
+      <router-link
+        tag="md-button"
+        :to="{ name: 'BoardView', params: { boardId: board.id } }"
+      >
+        comment
+      </router-link>
+    </h1>
     <md-field>
-      <label>CouchDb URL</label>
+      <label>Database URL</label>
       <md-input v-model="baseUrl"></md-input>
     </md-field>
     <md-button class="md-raised md-primary" @click="postNewData">
@@ -65,17 +73,32 @@ export default class BoardQuality extends Vue {
       ...new Set(perfs.map((perf) => Object.keys(perf.labels)).flat())
     ]
 
+    const labels = perfs.map((perf) => new Date(perf.date).toLocaleDateString())
     const colors = kaizens.map((_, i) => `hsl(${20 * i}, 55%, 65%)`)
+    const darkenColors = kaizens.map((_, i) => `hsl(${20 * i}, 55%, 45%)`)
 
-    const datasets = kaizens.map((kaizen) => {
+    const datasets = kaizens.map((kaizen, i) => {
       return {
         label: kaizen,
         data: perfs.map((perf) => perf.labels[kaizen] || 0),
-        backgroundColor: colors
+        borderColor: colors[i],
+        backgroundColor: colors[i]
       }
     })
 
-    const labels = perfs.map((perf) => new Date(perf.date).toLocaleDateString())
+    const diffDatasets = kaizens.map((kaizen, i) => {
+      return {
+        label: kaizen,
+        data: perfs.map(
+          (perf, perfIndex) =>
+            (perf.labels[kaizen] || 0) -
+            (perfs[perfIndex - 1]?.labels[kaizen] || 0)
+        ),
+        borderColor: darkenColors[i],
+        backgroundColor: 'rgba(0,0,0,0)',
+        type: 'line'
+      }
+    })
 
     if (this.chart) {
       this.chart.destroy()
@@ -85,7 +108,7 @@ export default class BoardQuality extends Vue {
       type: 'bar',
       data: {
         labels,
-        datasets
+        datasets: [...diffDatasets, ...datasets]
       },
       options: {
         scales: {
