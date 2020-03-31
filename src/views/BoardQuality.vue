@@ -74,8 +74,8 @@ export default class BoardQuality extends Vue {
     ]
 
     const labels = perfs.map((perf) => new Date(perf.date).toLocaleDateString())
-    const colors = kaizens.map((_, i) => `hsl(${20 * i}, 55%, 65%)`)
-    const darkenColors = kaizens.map((_, i) => `hsl(${20 * i}, 55%, 45%)`)
+    const colors = kaizens.map((_, i) => `hsl(${33 * i}, 55%, 65%)`)
+    const darkenColors = kaizens.map((_, i) => `hsl(${33 * i}, 55%, 45%)`)
 
     const datasets = kaizens.map((kaizen, i) => {
       return {
