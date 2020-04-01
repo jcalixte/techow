@@ -31,6 +31,10 @@ import { Board } from '@/models/Board'
 import { Card } from '@/models/Card'
 import { Perf } from '@/models/Perf'
 
+const sum = (...data: number[]) => {
+  return data.reduce((a, b) => a + b, 0)
+}
+
 @Component({
   components: {
     TrelloCard: () => import('@/components/TrelloCard.vue')
@@ -69,46 +73,58 @@ export default class BoardQuality extends Vue {
       return
     }
     perfs.sort((a, b) => (a.date < b.date ? -1 : 1))
-    const kaizens = [
-      ...new Set(perfs.map((perf) => Object.keys(perf.labels)).flat())
-    ]
 
     const labels = perfs.map((perf) => new Date(perf.date).toLocaleDateString())
-    const colors = kaizens.map((_, i) => `hsl(${33 * i}, 55%, 65%)`)
-    const darkenColors = kaizens.map((_, i) => `hsl(${33 * i}, 55%, 45%)`)
 
-    const datasets = kaizens.map((kaizen, i) => {
-      return {
-        label: kaizen,
-        data: perfs.map((perf) => perf.labels[kaizen] || 0),
-        borderColor: colors[i],
-        backgroundColor: colors[i]
-      }
-    })
+    // const kaizens = [
+    //   ...new Set(perfs.map((perf) => Object.keys(perf.labels)).flat())
+    // ]
+    // const colors = kaizens.map((_, i) => `hsl(${33 * i}, 55%, 65%)`)
+    // const darkenColors = kaizens.map((_, i) => `hsl(${33 * i}, 55%, 45%)`)
 
-    const diffDatasets = kaizens.map((kaizen, i) => {
-      return {
-        label: kaizen,
-        data: perfs.map(
-          (perf, perfIndex) =>
-            (perf.labels[kaizen] || 0) -
-            (perfs[perfIndex - 1]?.labels[kaizen] || 0)
-        ),
-        borderColor: darkenColors[i],
-        backgroundColor: 'rgba(0,0,0,0)',
-        type: 'line'
-      }
-    })
+    // const datasets = kaizens.map((kaizen, i) => {
+    //   return {
+    //     label: kaizen,
+    //     data: perfs.map((perf) => perf.labels[kaizen] || 0),
+    //     borderColor: colors[i],
+    //     backgroundColor: colors[i]
+    //   }
+    // })
+
+    // const diffDatasets = kaizens.map((kaizen, i) => {
+    //   return {
+    //     label: kaizen,
+    //     data: perfs.map(
+    //       (perf, perfIndex) =>
+    //         (perf.labels[kaizen] || 0) -
+    //         (perfs[perfIndex - 1]?.labels[kaizen] || 0)
+    //     ),
+    //     borderColor: darkenColors[i],
+    //     backgroundColor: 'rgba(0,0,0,0)',
+    //     type: 'line'
+    //   }
+    // })
+
+    const allDiffDataset = {
+      label: 'tickets dépassés',
+      data: perfs.map(
+        (perf, perfIndex) =>
+          sum(...Object.values(perf.labels)) -
+          sum(...Object.values(perfs[perfIndex - 1]?.labels || []))
+      ),
+      borderColor: 'hsl(230, 55%, 35%)',
+      backgroundColor: 'rgba(0,0,0,0)'
+    }
 
     if (this.chart) {
       this.chart.destroy()
     }
 
     this.chart = new Chart(this.$refs.perf as HTMLCanvasElement, {
-      type: 'bar',
+      type: 'line',
       data: {
         labels,
-        datasets: [...diffDatasets, ...datasets]
+        datasets: [allDiffDataset]
       },
       options: {
         scales: {
