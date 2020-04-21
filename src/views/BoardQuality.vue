@@ -113,7 +113,15 @@ export default class BoardQuality extends Vue {
           sum(...Object.values(perfs[perfIndex - 1]?.labels || []))
       ),
       borderColor: 'hsl(230, 55%, 35%)',
-      backgroundColor: 'rgba(0,0,0,0)'
+      backgroundColor: 'hsl(230, 55%, 35%)'
+    }
+
+    const standard = {
+      label: 'standard',
+      type: 'line',
+      data: perfs.map(() => 0),
+      borderColor: 'hsl(170, 55%, 35%)',
+      backgroundColor: 'hsl(170, 55%, 35%)'
     }
 
     if (this.chart) {
@@ -121,10 +129,10 @@ export default class BoardQuality extends Vue {
     }
 
     this.chart = new Chart(this.$refs.perf as HTMLCanvasElement, {
-      type: 'line',
+      type: 'bar',
       data: {
         labels,
-        datasets: [allDiffDataset]
+        datasets: [standard, allDiffDataset]
       },
       options: {
         scales: {
